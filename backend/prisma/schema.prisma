@@ -1,0 +1,18 @@
+// FoodLovers data model.
+// Sprint 0 keeps this minimal; full schema lands in Sprint 1.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Placeholder model so `prisma migrate` runs cleanly in Sprint 0.
+// Replaced by the real schema (Restaurant, Dish, Platform, PlatformListing) in Sprint 1.
+model HealthMarker {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+}

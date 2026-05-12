@@ -1,0 +1,19 @@
+{
+  "name": "foodlovers",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Side-by-side delivery comparison app — portfolio project",
+  "author": "José Noel Marenco <jnmarenco.ni@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "format": "npm --prefix backend run format && npm --prefix frontend run format"
+  }
+}

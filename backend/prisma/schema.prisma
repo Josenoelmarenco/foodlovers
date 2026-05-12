@@ -1,5 +1,11 @@
-// FoodLovers data model.
-// Sprint 0 keeps this minimal; full schema lands in Sprint 1.
+// FoodLovers data model — Sprint 1.
+//
+// Four entities:
+//   - Restaurant: brand / venue
+//   - Dish:       individual menu item, belongs to a Restaurant
+//   - Platform:   delivery platform (Wolt, UberEats, Foodora) — labels only
+//   - PlatformListing: same dish, listed on a Platform, with its own price/fee/eta.
+//     This is the join that powers the comparison feature.
 
 generator client {
   provider = "prisma-client-js"
@@ -10,9 +16,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Placeholder model so `prisma migrate` runs cleanly in Sprint 0.
-// Replaced by the real schema (Restaurant, Dish, Platform, PlatformListing) in Sprint 1.
-model HealthMarker {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
+model Restaurant {
+  id           String   @id @default(cuid())
+  name         String
+  cuisine      String
+  neighborhood String
+  rating       Float
+  imageUrl     String   @map("image_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  dishes Dish[]
+
+  @@index([cuisine])
+  @@index([neighborhood])
+  @@map("restaurants")
+}
+
+model Dish {
+  id           String   @id @default(cuid())
+  restaurantId String   @map("restaurant_id")
+  name         String
+  description  String
+  imageUrl     String   @map("image_url")
+  basePrice    Float    @map("base_price")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  restaurant Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  listings   PlatformListing[]
+
+  @@index([restaurantId])
+  @@index([name])
+  @@map("dishes")
+}
+
+model Platform {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  brandColor String   @map("brand_color")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  listings PlatformListing[]
+
+  @@map("platforms")
+}
+
+model PlatformListing {
+  id              String   @id @default(cuid())
+  dishId          String   @map("dish_id")
+  platformId      String   @map("platform_id")
+  price           Float
+  deliveryFee     Float    @map("delivery_fee")
+  deliveryMinutes Int      @map("delivery_minutes")
+  available       Boolean  @default(true)
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  dish     Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@unique([dishId, platformId])
+  @@index([dishId])
+  @@index([platformId])
+  @@index([available])
+  @@map("platform_listings")
 }

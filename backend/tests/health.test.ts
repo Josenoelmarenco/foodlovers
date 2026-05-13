@@ -1,5 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
+
+// Even though this test doesn't touch the DB, the app imports services that
+// instantiate Prisma. Stub the client module so importing it doesn't try to
+// connect.
+vi.mock('../src/db/client.js', () => ({ prisma: {} }));
+
 import { createApp } from '../src/app.js';
 
 describe('GET /api/health', () => {

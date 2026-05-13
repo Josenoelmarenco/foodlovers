@@ -1,20 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
-// Mock the Prisma client BEFORE importing the app.
-const restaurantMocks = {
-  findMany: vi.fn(),
-  findUnique: vi.fn(),
-  count: vi.fn(),
-};
-
-vi.mock('../src/db/client.js', () => ({
-  prisma: {
-    restaurant: restaurantMocks,
+// vi.hoisted runs BEFORE every import, which guarantees the mock factory
+// below has access to the mock fns at module-eval time.
+const { restaurantMocks } = vi.hoisted(() => ({
+  restaurantMocks: {
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    count: vi.fn(),
   },
 }));
 
-const { createApp } = await import('../src/app.js');
+vi.mock('../src/db/client.js', () => ({
+  prisma: { restaurant: restaurantMocks },
+}));
+
+import { createApp } from '../src/app.js';
 
 describe('GET /api/restaurants', () => {
   beforeEach(() => {
@@ -23,7 +24,15 @@ describe('GET /api/restaurants', () => {
 
   it('returns a paginated list with default page/pageSize', async () => {
     restaurantMocks.findMany.mockResolvedValue([
-      { id: 'r1', name: 'Pizza Bar Roma', cuisine: 'Italian', neighborhood: 'Kallio', rating: 4.6, imageUrl: 'x', createdAt: new Date() },
+      {
+        id: 'r1',
+        name: 'Pizza Bar Roma',
+        cuisine: 'Italian',
+        neighborhood: 'Kallio',
+        rating: 4.6,
+        imageUrl: 'x',
+        createdAt: new Date(),
+      },
     ]);
     restaurantMocks.count.mockResolvedValue(1);
 
@@ -38,7 +47,9 @@ describe('GET /api/restaurants', () => {
     restaurantMocks.findMany.mockResolvedValue([]);
     restaurantMocks.count.mockResolvedValue(0);
 
-    const res = await request(createApp()).get('/api/restaurants?cuisine=Italian&neighborhood=Kallio');
+    const res = await request(createApp()).get(
+      '/api/restaurants?cuisine=Italian&neighborhood=Kallio',
+    );
 
     expect(res.status).toBe(200);
     expect(restaurantMocks.findMany).toHaveBeenCalledWith(

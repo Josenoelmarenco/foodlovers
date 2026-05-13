@@ -1,17 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
-const platformMocks = {
-  findMany: vi.fn(),
-};
-
-vi.mock('../src/db/client.js', () => ({
-  prisma: {
-    platform: platformMocks,
-  },
+const { platformMocks } = vi.hoisted(() => ({
+  platformMocks: { findMany: vi.fn() },
 }));
 
-const { createApp } = await import('../src/app.js');
+vi.mock('../src/db/client.js', () => ({
+  prisma: { platform: platformMocks },
+}));
+
+import { createApp } from '../src/app.js';
 
 describe('GET /api/platforms', () => {
   beforeEach(() => {

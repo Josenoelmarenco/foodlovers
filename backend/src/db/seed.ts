@@ -21,15 +21,6 @@ const PLATFORMS: Array<{ name: string; brandColor: string }> = [
   { name: 'Foodora', brandColor: '#D6116B' },
 ];
 
-const NEIGHBORHOODS = [
-  'Kallio',
-  'Punavuori',
-  'Kamppi',
-  'Hakaniemi',
-  'Töölö',
-  'Kruununhaka',
-];
-
 type RestaurantSeed = {
   name: string;
   cuisine: string;
@@ -136,9 +127,16 @@ const PICSUM_SEED = 'foodlovers';
 const restaurantImage = (slug: string) => `https://picsum.photos/seed/${PICSUM_SEED}-${slug}/800/500`;
 const dishImage = (slug: string) => `https://picsum.photos/seed/${PICSUM_SEED}-d-${slug}/600/400`;
 
-const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 
-const PLATFORM_PROFILES: Record<string, { priceFactor: number; feeRange: [number, number]; etaRange: [number, number] }> = {
+const PLATFORM_PROFILES: Record<
+  string,
+  { priceFactor: number; feeRange: [number, number]; etaRange: [number, number] }
+> = {
   Wolt: { priceFactor: 1.05, feeRange: [1.9, 3.5], etaRange: [20, 40] },
   UberEats: { priceFactor: 1.0, feeRange: [2.5, 4.5], etaRange: [25, 50] },
   Foodora: { priceFactor: 1.08, feeRange: [0.99, 2.99], etaRange: [30, 55] },
@@ -148,10 +146,9 @@ const randomBetween = (min: number, max: number) => Math.random() * (max - min) 
 const pickInt = (min: number, max: number) => Math.floor(randomBetween(min, max + 1));
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-// Deterministic-ish: each dish gets listed on 1-3 platforms.
-// We bias toward "listed on 2-3 platforms" so the compare feature has data to work with.
+// Each dish lands on 2 or 3 platforms — so the compare feature always has options.
 const pickPlatformsForDish = (allPlatformIds: string[]): string[] => {
-  const count = pickInt(2, 3); // mostly 2 or 3 platforms
+  const count = pickInt(2, 3);
   const shuffled = [...allPlatformIds].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 };
@@ -168,10 +165,7 @@ async function main() {
   await prisma.platform.deleteMany();
 
   console.log('[seed] inserting platforms…');
-  const platforms = await Promise.all(
-    PLATFORMS.map((p) => prisma.platform.create({ data: p })),
-  );
-  const platformByName = new Map(platforms.map((p) => [p.name, p]));
+  const platforms = await Promise.all(PLATFORMS.map((p) => prisma.platform.create({ data: p })));
 
   console.log('[seed] inserting restaurants and dishes…');
   let dishCount = 0;
@@ -190,7 +184,9 @@ async function main() {
 
     const catalog = DISH_CATALOG[r.cuisine] ?? [];
     const dishesForThisRestaurant = pickInt(3, Math.min(5, catalog.length));
-    const shuffledCatalog = [...catalog].sort(() => Math.random() - 0.5).slice(0, dishesForThisRestaurant);
+    const shuffledCatalog = [...catalog]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, dishesForThisRestaurant);
 
     for (const t of shuffledCatalog) {
       const dish = await prisma.dish.create({
@@ -220,7 +216,7 @@ async function main() {
             price,
             deliveryFee,
             deliveryMinutes,
-            available: Math.random() > 0.05, // 5% randomly unavailable
+            available: Math.random() > 0.05,
           },
         });
         listingCount += 1;
@@ -228,19 +224,11 @@ async function main() {
     }
   }
 
-  // Summary
   console.log('[seed] done.');
   console.log(`  platforms:   ${platforms.length}`);
   console.log(`  restaurants: ${RESTAURANTS.length}`);
   console.log(`  dishes:      ${dishCount}`);
   console.log(`  listings:    ${listingCount}`);
-
-  // Sample read to confirm wiring works
-  const sampleDish = await prisma.dish.findFirst({
-    include: { restaurant: true, listings: { include: { platform: true } } },
-  });
-  console.log('[seed] sample dish:', sampleDish?.name, '→', sampleDish?.listings.length, 'listings');
-  void platformByName;
 }
 
 main()

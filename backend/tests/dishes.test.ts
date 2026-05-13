@@ -1,19 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
-const dishMocks = {
-  findMany: vi.fn(),
-  findUnique: vi.fn(),
-  count: vi.fn(),
-};
-
-vi.mock('../src/db/client.js', () => ({
-  prisma: {
-    dish: dishMocks,
+const { dishMocks } = vi.hoisted(() => ({
+  dishMocks: {
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    count: vi.fn(),
   },
 }));
 
-const { createApp } = await import('../src/app.js');
+vi.mock('../src/db/client.js', () => ({
+  prisma: { dish: dishMocks },
+}));
+
+import { createApp } from '../src/app.js';
 
 describe('GET /api/dishes/search', () => {
   beforeEach(() => {

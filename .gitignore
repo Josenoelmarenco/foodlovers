@@ -10,6 +10,11 @@ build/
 .vite/
 *.tsbuildinfo
 
+# TypeScript declarations generated from .ts config files
+# (vite.config.ts → vite.config.d.ts, etc.)
+frontend/*.config.d.ts
+backend/*.config.d.ts
+
 # ============================================================
 # Env files (never commit secrets)
 # ============================================================

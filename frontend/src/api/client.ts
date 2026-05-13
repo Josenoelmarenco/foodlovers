@@ -1,9 +1,10 @@
-/**
- * Tiny typed HTTP client over fetch. Centralizing this here lets us:
- * - inject auth headers later in one place
- * - serialize errors consistently
- * - swap fetch implementations for tests
- */
+import type {
+  Dish,
+  Paginated,
+  Platform,
+  Restaurant,
+  RestaurantWithDishes,
+} from '../types/api';
 
 const baseUrl = import.meta.env.VITE_API_URL ?? '';
 
@@ -18,7 +19,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
+async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${baseUrl}${path}`, {
     ...init,
     headers: { Accept: 'application/json', ...(init?.headers ?? {}) },
@@ -45,6 +46,44 @@ export interface HealthResponse {
   uptimeSeconds: number;
 }
 
+export interface SearchDishesParams {
+  q?: string;
+  cuisine?: string;
+  neighborhood?: string;
+  maxPrice?: number;
+  platformId?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface ListRestaurantsParams {
+  cuisine?: string;
+  neighborhood?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+const toQuery = (obj: Record<string, string | number | undefined>): string => {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined && value !== '') params.set(key, String(value));
+  }
+  const s = params.toString();
+  return s ? `?${s}` : '';
+};
+
 export const api = {
   health: () => apiGet<HealthResponse>('/api/health'),
+
+  listPlatforms: () => apiGet<{ items: Platform[] }>('/api/platforms'),
+
+  listRestaurants: (params: ListRestaurantsParams = {}) =>
+    apiGet<Paginated<Restaurant>>(`/api/restaurants${toQuery(params)}`),
+
+  getRestaurant: (id: string) => apiGet<RestaurantWithDishes>(`/api/restaurants/${id}`),
+
+  searchDishes: (params: SearchDishesParams = {}) =>
+    apiGet<Paginated<Dish>>(`/api/dishes/search${toQuery(params)}`),
+
+  getDish: (id: string) => apiGet<Dish>(`/api/dishes/${id}`),
 };

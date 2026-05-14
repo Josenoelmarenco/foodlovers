@@ -23,7 +23,7 @@ It was built as a portfolio project to demonstrate:
 
 ## Live demo
 
-- Web: `https://foodlovers.vercel.app` *(see `docs/DEPLOY.md` to reproduce)*
+- Web: `https://foodlovers-five.vercel.app` *(see `docs/DEPLOY.md` to reproduce)*
 - API: `https://foodlovers-api.onrender.com`
 
 ## Screenshots

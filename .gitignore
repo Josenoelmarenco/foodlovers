@@ -15,6 +15,13 @@ build/
 frontend/*.config.d.ts
 backend/*.config.d.ts
 
+# Compiled JS output of TypeScript config files. The .ts versions
+# are the source of truth — these .js files used to be emitted when
+# tsconfig.node.json had composite:true and confuse the build.
+frontend/vite.config.js
+frontend/vitest.config.js
+frontend/tailwind.config.js
+
 # ============================================================
 # Env files (never commit secrets)
 # ============================================================

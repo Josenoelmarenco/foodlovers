@@ -1,0 +1,24 @@
+# Render blueprint for the FoodLovers API.
+# Deploy with: https://dashboard.render.com → "New +" → "Blueprint" → connect this repo.
+#
+# This file deliberately uses Render free tier. Cold-start is ~30s the first
+# time after inactivity — that's expected and called out in docs/DEPLOY.md.
+services:
+  - type: web
+    name: foodlovers-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci && npm run build && npm run prisma:deploy
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false   # set manually in the Render dashboard (Neon connection string)
+      - key: CORS_ORIGIN
+        sync: false   # set to the Vercel frontend URL (e.g. https://foodlovers.vercel.app)

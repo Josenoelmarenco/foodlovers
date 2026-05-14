@@ -10,8 +10,9 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
+    "postinstall": "prisma generate",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "test": "vitest",

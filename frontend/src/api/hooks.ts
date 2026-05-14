@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { api, type ListRestaurantsParams, type SearchDishesParams } from './client';
+import type { Weights } from '../types/api';
 
 export const useHealth = () =>
   useQuery({
@@ -39,4 +40,10 @@ export const useDish = (id: string | undefined) =>
     queryKey: ['dish', id],
     queryFn: () => api.getDish(id!),
     enabled: Boolean(id),
+  });
+
+export const useRecommendation = () =>
+  useMutation({
+    mutationFn: ({ dishId, weights }: { dishId: string; weights: Weights }) =>
+      api.recommend(dishId, weights),
   });

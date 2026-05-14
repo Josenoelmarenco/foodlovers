@@ -265,3 +265,35 @@ Cuando consigas un trabajo y ya no necesites el free tier:
 - [ ] CORS_ORIGIN restringido a la URL de Vercel
 - [ ] README actualizado con los enlaces de deploy
 - [ ] Visitaste la URL desde otro dispositivo o pestaña anónima y todo funciona
+
+---
+
+## Atajo: usar `render.yaml` (Blueprint)
+
+El repo incluye un `render.yaml` que pre-configura el web service. Si lo prefieres:
+
+1. En Render: **New +** → **Blueprint**.
+2. Conecta tu repo. Render detecta el `render.yaml` y crea el servicio `foodlovers-api` con `rootDir: backend`, build y start ya definidos.
+3. Te pedirá rellenar las variables marcadas con `sync: false`:
+   - `DATABASE_URL` → la connection string de Neon (terminada en `?sslmode=require`)
+   - `CORS_ORIGIN` → la URL final de tu frontend en Vercel
+4. Despliega y verifica `/api/health`.
+
+Esto evita configurar a mano build command y start command desde la UI.
+
+---
+
+## Después del deploy: actualizar el README
+
+Cuando ambas URLs estén vivas:
+
+```bash
+# Reemplaza los placeholders en README.md por tus URLs reales
+# - Web:   https://<tu-proyecto>.vercel.app
+# - API:   https://<tu-proyecto>.onrender.com
+git add README.md
+git commit -m "docs(readme): add live deploy URLs"
+git push
+```
+
+Ese commit es el que un reclutador ve cuando entra al repo: link a la app, link a la API, y badges verdes. Cumple su función como portafolio.

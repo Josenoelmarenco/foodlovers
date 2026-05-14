@@ -2,8 +2,10 @@ import type {
   Dish,
   Paginated,
   Platform,
+  RecommendationResult,
   Restaurant,
   RestaurantWithDishes,
+  Weights,
 } from '../types/api';
 
 const baseUrl = import.meta.env.VITE_API_URL ?? '';
@@ -63,14 +65,36 @@ export interface ListRestaurantsParams {
   pageSize?: number;
 }
 
-const toQuery = (obj: Record<string, string | number | undefined>): string => {
+/**
+ * Build a `?a=1&b=2` query string from any plain object.
+ *
+ * Typed as a generic over `object` (rather than `Record<string, ...>`)
+ * so that explicit interfaces like ListRestaurantsParams — which lack
+ * an index signature — are still assignable. Values are coerced via
+ * String() and empty/undefined keys are dropped.
+ */
+function toQuery<T extends object>(obj: T): string {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(obj)) {
-    if (value !== undefined && value !== '') params.set(key, String(value));
+    if (value === undefined || value === null || value === '') continue;
+    params.set(key, String(value));
   }
   const s = params.toString();
   return s ? `?${s}` : '';
-};
+}
+
+async function apiPost<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${baseUrl}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const errBody = await safeJson(res);
+    throw new ApiError(`POST ${path} failed`, res.status, errBody);
+  }
+  return (await res.json()) as T;
+}
 
 export const api = {
   health: () => apiGet<HealthResponse>('/api/health'),
@@ -86,4 +110,7 @@ export const api = {
     apiGet<Paginated<Dish>>(`/api/dishes/search${toQuery(params)}`),
 
   getDish: (id: string) => apiGet<Dish>(`/api/dishes/${id}`),
+
+  recommend: (dishId: string, weights: Weights) =>
+    apiPost<RecommendationResult>('/api/recommendations', { dishId, weights }),
 };

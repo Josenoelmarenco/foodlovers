@@ -59,3 +59,29 @@ export interface Paginated<T> {
 export interface RestaurantWithDishes extends Restaurant {
   dishes: (Dish & { listings: PlatformListing[] })[];
 }
+
+export interface Weights {
+  price: number;
+  speed: number;
+  quality: number;
+}
+
+export interface ScoredListing {
+  listingId: string;
+  platformId: string;
+  platformName: string;
+  brandColor: string;
+  total: number;
+  deliveryMinutes: number;
+  score: number;
+  breakdown: { price: number; speed: number; quality: number };
+  raw: { price: number; speed: number; quality: number };
+}
+
+export interface RecommendationResult {
+  dishId: string;
+  weights: Weights;
+  ranked: ScoredListing[];
+  winnerId: string | null;
+  reasoning: string;
+}

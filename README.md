@@ -23,16 +23,35 @@ It was built as a portfolio project to demonstrate:
 
 ## Live demo
 
-- Web: `https://foodlovers-five.vercel.app` *(see `docs/DEPLOY.md` to reproduce)*
-- API: `https://foodlovers-api.onrender.com`
+- **Web:** <https://foodlovers-five.vercel.app>
+- **API:** <https://foodlovers-api.onrender.com>
+
+> The API runs on Render's free tier and spins down after ~15 min of inactivity. The first request after a cold start takes ~30–50s; subsequent requests are fast.
 
 ## Screenshots
 
-> _Run `npm run dev` in both `frontend/` and `backend/` to see the actual UI. Screenshots placeholders live in `docs/screenshots/`._
-
-| Home | Search | Dish detail (assistant) |
-|---|---|---|
-| `docs/screenshots/home.png` | `docs/screenshots/search.png` | `docs/screenshots/dish-detail.png` |
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <a href="https://github.com/user-attachments/assets/2465bca8-5be5-4f5e-ac0e-83731a350db5">
+        <img src="https://github.com/user-attachments/assets/2465bca8-5be5-4f5e-ac0e-83731a350db5" alt="Home page" />
+      </a>
+      <br/><sub><b>Home</b><br/>Landing with featured restaurants</sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="https://github.com/user-attachments/assets/10fd72b3-0647-4683-96c6-b532fba8de44">
+        <img src="https://github.com/user-attachments/assets/10fd72b3-0647-4683-96c6-b532fba8de44" alt="Search results" />
+      </a>
+      <br/><sub><b>Search</b><br/>Filtered dish listings, URL-synced</sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="https://github.com/user-attachments/assets/a5efc68b-e217-405a-a6f3-dbd32342dd4c">
+        <img src="https://github.com/user-attachments/assets/a5efc68b-e217-405a-a6f3-dbd32342dd4c" alt="Dish detail view with comparison and priority sliders" />
+      </a>
+      <br/><sub><b>Dish detail</b><br/>Side-by-side comparison + priority sliders</sub>
+    </td>
+  </tr>
+</table>
 
 ## The recommendation engine in one paragraph
 
@@ -108,7 +127,7 @@ npm install
 npm run dev                # http://localhost:5173
 ```
 
-Open <http://localhost:5173>. You should see a green “API online” pill in the header.
+Open <http://localhost:5173>. You should see a green "API online" pill in the header.
 
 Full step-by-step instructions for a clean machine live in [`docs/SETUP.md`](docs/SETUP.md).
 
@@ -159,7 +178,7 @@ All inputs are validated with Zod. Errors are returned as `{ error, message }` J
 
 A few of the trade-offs taken on purpose, not by accident:
 
-- **No LLM in the recommendation path.** A deterministic weighted-sum is faster, free, easier to unit-test and easier to explain to a recruiter than “we ask GPT.” The explanation string is templated from the inputs.
+- **No LLM in the recommendation path.** A deterministic weighted-sum is faster, free, easier to unit-test and easier to explain to a recruiter than "we ask GPT." The explanation string is templated from the inputs.
 - **Prisma is mocked in unit tests via `vi.hoisted()`** so the API tests don't need a running database. The real database is exercised in CI via a Postgres service container.
 - **Filters live in the URL** (`useSearchParams`) so search state survives refresh and can be shared as a link.
 - **Strict TS everywhere**, including `noUncheckedIndexedAccess`, to force handling of `undefined` from arrays.
